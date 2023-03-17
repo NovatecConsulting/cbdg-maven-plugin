@@ -20,7 +20,6 @@
                     <templateFile>src/test/resources/templates/test.ftl</templateFile>
                     <camundaBpmnDir>src/test/resources/bpmn</camundaBpmnDir>
                     <resultOutputDir>build/test-results/cbdg/html</resultOutputDir>
-                    <bpmnDiagramImageDir>src/test/resources/images</bpmnDiagramImageDir>
                 </configuration>
             </plugin>
         </plugins>

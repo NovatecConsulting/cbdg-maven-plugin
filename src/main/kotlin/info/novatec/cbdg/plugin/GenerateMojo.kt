@@ -1,18 +1,13 @@
 package info.novatec.cbdg.plugin
 
-import info.novatec.cbdg.FreeMarkerService
-import info.novatec.docu.parser.main.BpmnParser
+import info.novatec.cbdg.DocumentationGenerator
+import info.novatec.cbdg.freemarker.FreemarkerDocumentationGenerator
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import kotlin.io.path.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
 
 /**
  * Mojo - Class for cbdg-plugin. Calls by Maven-command 'mvn cbdg:generate'.
@@ -40,41 +35,25 @@ class GenerateMojo : AbstractMojo() {
     @Parameter(property = "resultOutputDir", defaultValue = "\${project.build.directory}/cbdg/html")
     lateinit var resultOutputDir: File
 
-    /**
-     * Directory with the images of bpmn-files. Default is '{project.basedir}/src/main/resources/images'
-     */
-    @Parameter(property = "bpmnDiagramImageDir", defaultValue = "\${project.basedir}/src/main/resources/images")
-    var bpmnDiagramImageDir: File? = null
-
     override fun execute() {
         if (templateFile.name.equals("default.ftl")) {
             FileOutputStream(templateFile, false).use { javaClass.classLoader.getResourceAsStream("templates/default.ftl")
-                ?.transferTo(it) ?: throw FileNotFoundException("templates/default.ftl don't exist.")}
+                ?.transferTo(it) ?: throw FileNotFoundException("templates/default.ftl doesn't exist.")}
         }
 
-        camundaBpmnDir.listFiles()?.forEach {
-            log.info("Generating documentation for file ${it.absolutePath}")
+        val documentationGenerator: DocumentationGenerator = FreemarkerDocumentationGenerator(resultOutputDir, templateFile)
+
+        camundaBpmnDir.listFiles()?.forEach { bpmnFile ->
+            log.info("Generating documentation for file ${bpmnFile.absolutePath}")
             log.info("Using template ${templateFile.absolutePath}")
 
-            val imageSrcPath = Path("${bpmnDiagramImageDir?.absolutePath}/${it.nameWithoutExtension}.png")
-            val imageTargetPath = Path("${resultOutputDir.absolutePath}/images/${it.nameWithoutExtension}.png")
-            imageTargetPath.parent.createDirectories()
-            if (imageSrcPath.exists()) {
-                Files.copy(imageSrcPath, imageTargetPath, StandardCopyOption.REPLACE_EXISTING)
-            }
+            documentationGenerator.generateDocumentation(bpmnFile)
 
-            val bpmnObject = BpmnParser.parseBpmnFile(it, "${it.nameWithoutExtension}.png")
-            FreeMarkerService.writeTemplate(
-                bpmnObject,
-                templateFile.name,
-                "${resultOutputDir.absolutePath}/${it.nameWithoutExtension}.html"
-            ) {
-                setDirectoryForTemplateLoading(templateFile.parentFile)
-            }
             log.info("Output report into path ${resultOutputDir.absolutePath}")
-        } ?: throw FileNotFoundException("${camundaBpmnDir.absolutePath} don't exist.")
+        } ?: throw FileNotFoundException("${camundaBpmnDir.absolutePath} doesn't exist.")
+
         resultOutputDir.listFiles()?.forEach {
             log.info("Output: " + it.absolutePath)
-        } ?: throw FileNotFoundException("${resultOutputDir.absolutePath} don't exist.")
+        } ?: throw FileNotFoundException("${resultOutputDir.absolutePath} doesn't exist.")
     }
 }
