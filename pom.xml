@@ -14,10 +14,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.8.10</kotlin.version>
-        <maven.version>3.9.0</maven.version>
+        <kotlin.version>1.9.20</kotlin.version>
+        <maven.version>3.9.5</maven.version>
         <maven.plugin-tools.version>3.7.1</maven.plugin-tools.version>
-        <junit.version>5.9.2</junit.version>
+        <junit.version>5.10.1</junit.version>
     </properties>
 
     <dependencies>
@@ -43,11 +43,6 @@
             <artifactId>maven-plugin-annotations</artifactId>
             <version>${maven.plugin-tools.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>2.3.32</version>
         </dependency>
         <dependency>
             <groupId>info.novatec</groupId>
